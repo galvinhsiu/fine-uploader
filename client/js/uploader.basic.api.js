@@ -166,51 +166,6 @@
             return this._handler.isValid(fileOrBlobId);
         },
 
-        // Generate a variable size thumbnail on an img or canvas,
-        // returning a promise that is fulfilled when the attempt completes.
-        // Thumbnail can either be based off of a URL for an image returned
-        // by the server in the upload response, or the associated `Blob`.
-        drawThumbnail: function(fileId, imgOrCanvas, maxSize, fromServer, customResizeFunction) {
-            var promiseToReturn = new qq.Promise(),
-                fileOrUrl, options;
-
-            if (this._imageGenerator) {
-                fileOrUrl = this._thumbnailUrls[fileId];
-                options = {
-                    customResizeFunction: customResizeFunction,
-                    maxSize: maxSize > 0 ? maxSize : null,
-                    scale: maxSize > 0
-                };
-
-                // If client-side preview generation is possible
-                // and we are not specifically looking for the image URl returned by the server...
-                if (!fromServer && qq.supportedFeatures.imagePreviews) {
-                    fileOrUrl = this.getFile(fileId);
-                }
-
-                /* jshint eqeqeq:false,eqnull:true */
-                if (fileOrUrl == null) {
-                    promiseToReturn.failure({container: imgOrCanvas, error: "File or URL not found."});
-                }
-                else {
-                    this._imageGenerator.generate(fileOrUrl, imgOrCanvas, options).then(
-                        function success(modifiedContainer) {
-                            promiseToReturn.success(modifiedContainer);
-                        },
-
-                        function failure(container, reason) {
-                            promiseToReturn.failure({container: container, error: reason || "Problem generating thumbnail"});
-                        }
-                    );
-                }
-            }
-            else {
-                promiseToReturn.failure({container: imgOrCanvas, error: "Missing image generator module"});
-            }
-
-            return promiseToReturn;
-        },
-
         getButton: function(fileId) {
             return this._getButton(this._buttonIdsForFileIds[fileId]);
         },
@@ -1932,18 +1887,7 @@
                 return validityChecker.failure();
             }
 
-            if (qq.ImageValidation && qq.supportedFeatures.imagePreviews && qq.isFile(file)) {
-                new qq.ImageValidation(file, qq.bind(self.log, self)).validate(validationBase.image).then(
-                    validityChecker.success,
-                    function(errorCode) {
-                        self._itemError(errorCode + "ImageError", name, file);
-                        validityChecker.failure();
-                    }
-                );
-            }
-            else {
-                validityChecker.success();
-            }
+            validityChecker.success();
 
             return validityChecker;
         },

@@ -109,30 +109,12 @@ qq.Templating = function(spec) {
 
             if (showThumbnails) {
                 if (notAvailableUrl) {
-                    options.imageGenerator.generate(notAvailableUrl, new Image(), spec).then(
-                        function(updatedImg) {
-                            cachedThumbnailNotAvailableImg.success(updatedImg);
-                        },
-                        function() {
-                            cachedThumbnailNotAvailableImg.failure();
-                            log("Problem loading 'not available' placeholder image at " + notAvailableUrl, "error");
-                        }
-                    );
                 }
                 else {
                     cachedThumbnailNotAvailableImg.failure();
                 }
 
                 if (waitingUrl) {
-                    options.imageGenerator.generate(waitingUrl, new Image(), spec).then(
-                        function(updatedImg) {
-                            cachedWaitingForThumbnailImg.success(updatedImg);
-                        },
-                        function() {
-                            cachedWaitingForThumbnailImg.failure();
-                            log("Problem loading 'waiting for thumbnail' placeholder image at " + waitingUrl, "error");
-                        }
-                    );
                 }
                 else {
                     cachedWaitingForThumbnailImg.failure();
@@ -168,47 +150,6 @@ qq.Templating = function(spec) {
             });
 
             return waitingImgPlacement;
-        },
-
-        generateNewPreview = function(id, blob, spec) {
-            var thumbnail = getThumbnail(id);
-
-            log("Generating new thumbnail for " + id);
-            blob.qqThumbnailId = id;
-
-            return options.imageGenerator.generate(blob, thumbnail, spec).then(
-                function() {
-                    generatedThumbnails++;
-                    show(thumbnail);
-                    previewGeneration[id].success();
-                },
-                function() {
-                    previewGeneration[id].failure();
-
-                    // Display the "not available" placeholder img only if we are
-                    // not expecting a thumbnail at a later point, such as in a server response.
-                    if (!options.placeholders.waitUntilUpdate) {
-                        maybeSetDisplayNotAvailableImg(id, thumbnail);
-                    }
-                });
-        },
-
-        generateNextQueuedPreview = function() {
-            if (thumbGenerationQueue.length) {
-                thumbnailQueueMonitorRunning = true;
-
-                var queuedThumbRequest = thumbGenerationQueue.shift();
-
-                if (queuedThumbRequest.update) {
-                    processUpdateQueuedPreviewRequest(queuedThumbRequest);
-                }
-                else {
-                    processNewQueuedPreviewRequest(queuedThumbRequest);
-                }
-            }
-            else {
-                thumbnailQueueMonitorRunning = false;
-            }
         },
 
         getCancel = function(id) {
@@ -478,98 +419,6 @@ qq.Templating = function(spec) {
             }
 
             parentEl.insertBefore(el, beforeEl);
-        },
-
-        processNewQueuedPreviewRequest = function(queuedThumbRequest) {
-            var id = queuedThumbRequest.id,
-                optFileOrBlob = queuedThumbRequest.optFileOrBlob,
-                relatedThumbnailId = optFileOrBlob && optFileOrBlob.qqThumbnailId,
-                thumbnail = getThumbnail(id),
-                spec = {
-                    customResizeFunction: queuedThumbRequest.customResizeFunction,
-                    maxSize: thumbnailMaxSize,
-                    orient: true,
-                    scale: true
-                };
-
-            if (qq.supportedFeatures.imagePreviews) {
-                if (thumbnail) {
-                    if (options.limits.maxThumbs && options.limits.maxThumbs <= generatedThumbnails) {
-                        maybeSetDisplayNotAvailableImg(id, thumbnail);
-                        generateNextQueuedPreview();
-                    }
-                    else {
-                        displayWaitingImg(thumbnail).done(function() {
-                            previewGeneration[id] = new qq.Promise();
-
-                            previewGeneration[id].done(function() {
-                                setTimeout(generateNextQueuedPreview, options.limits.timeBetweenThumbs);
-                            });
-
-                            /* jshint eqnull: true */
-                            // If we've already generated an <img> for this file, use the one that exists,
-                            // don't waste resources generating a new one.
-                            if (relatedThumbnailId != null) {
-                                useCachedPreview(id, relatedThumbnailId);
-                            }
-                            else {
-                                generateNewPreview(id, optFileOrBlob, spec);
-                            }
-                        });
-                    }
-                }
-                // File element in template may have been removed, so move on to next item in queue
-                else {
-                    generateNextQueuedPreview();
-                }
-            }
-            else if (thumbnail) {
-                displayWaitingImg(thumbnail);
-                generateNextQueuedPreview();
-            }
-        },
-
-        processUpdateQueuedPreviewRequest = function(queuedThumbRequest) {
-            var id = queuedThumbRequest.id,
-                thumbnailUrl = queuedThumbRequest.thumbnailUrl,
-                showWaitingImg = queuedThumbRequest.showWaitingImg,
-                thumbnail = getThumbnail(id),
-                spec = {
-                    customResizeFunction: queuedThumbRequest.customResizeFunction,
-                    scale: serverScale,
-                    maxSize: thumbnailMaxSize
-                };
-
-            if (thumbnail) {
-                if (thumbnailUrl) {
-                    if (options.limits.maxThumbs && options.limits.maxThumbs <= generatedThumbnails) {
-                        maybeSetDisplayNotAvailableImg(id, thumbnail);
-                        generateNextQueuedPreview();
-                    }
-                    else {
-                        if (showWaitingImg) {
-                            displayWaitingImg(thumbnail);
-                        }
-
-                        return options.imageGenerator.generate(thumbnailUrl, thumbnail, spec).then(
-                            function() {
-                                show(thumbnail);
-                                generatedThumbnails++;
-                                setTimeout(generateNextQueuedPreview, options.limits.timeBetweenThumbs);
-                            },
-
-                            function() {
-                                maybeSetDisplayNotAvailableImg(id, thumbnail);
-                                setTimeout(generateNextQueuedPreview, options.limits.timeBetweenThumbs);
-                            }
-                        );
-                    }
-                }
-                else {
-                    maybeSetDisplayNotAvailableImg(id, thumbnail);
-                    generateNextQueuedPreview();
-                }
-            }
         },
 
         setProgressBarWidth = function(id, percent) {
@@ -983,20 +832,6 @@ qq.Templating = function(spec) {
         showSpinner: function(id) {
             qq(getFile(id)).addClass(IN_PROGRESS_CLASS);
             show(getSpinner(id));
-        },
-
-        generatePreview: function(id, optFileOrBlob, customResizeFunction) {
-            if (!this.isHiddenForever(id)) {
-                thumbGenerationQueue.push({id: id, customResizeFunction: customResizeFunction, optFileOrBlob: optFileOrBlob});
-                !thumbnailQueueMonitorRunning && generateNextQueuedPreview();
-            }
-        },
-
-        updateThumbnail: function(id, thumbnailUrl, showWaitingImg, customResizeFunction) {
-            if (!this.isHiddenForever(id)) {
-                thumbGenerationQueue.push({customResizeFunction: customResizeFunction, update: true, id: id, thumbnailUrl: thumbnailUrl, showWaitingImg: showWaitingImg});
-                !thumbnailQueueMonitorRunning && generateNextQueuedPreview();
-            }
         },
 
         hasDialog: function(type) {

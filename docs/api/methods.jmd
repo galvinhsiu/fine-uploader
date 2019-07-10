@@ -118,51 +118,6 @@ A `CanvasWrapper` object:
     }
 ]) }}
 
-{{ api_method("drawThumbnail", "drawThumbnail (id, targetContainer[, maxSize[, fromServer[, customResizer]]])", "Draws a thumbnail.",
-[
-    {
-        "name": "id",
-        "type": "Integer",
-        "description": "The id of the image file."
-    },
-    {
-        "name": "targetContainer",
-        "type": "HTMLElement",
-        "description": "The element where the image preview will be drawn. Must be either an `<img>` or `<canvas>` element."
-    },
-    {
-        "name": "maxSize",
-        "type": "Integer",
-        "description": "The maximum dimensions (for width and height) you will allow this image to scale to."
-    },
-    {
-        "name": "fromServer",
-        "type": "Boolean",
-        "description": "`true` if the image data will come as a response from the server rather than be generated client-side."
-    },
-    {
-        "name": "customResizer",
-        "type": "function",
-        "description": "Ignored if the current browser does not [support image previews](../browser-support.html). If you want to use an alternate library to resize the image, you must contribute a function for this option that returns a `Promise`. Once the resize is complete, your promise must be fulfilled. You may, of course, reject your returned `Promise` is the resize fails in some way.
-
-A `resizeInfo` object, which will be passed to the supplied function, contains the following properties:
-
-* `blob` - The original `File` or `Blob` object, if available.
-* `height` - Desired height of the image after the resize operation.
-* `image` - The original `HTMLImageElement` object, if available.
-* `sourceCanvas` - `HTMLCanvasElement` element containing the original image data (not resized).
-* `targetCanvas` - `HTMLCanvasElement` element containing the `HTMLCanvasElement` that should contain the resized image.
-* `width` - Desired width of the image after the resize operation.
-"
-    }
-],
-[
-    {
-        "type": "promise",
-        "description": "Fulfilled by passing the container back into the success callback after the thumbnail has been rendered. If the thumbnail cannot be rendered, failure callbacks will be invoked instead, passing an object with `container` and `error` properties."
-    }
-
-]) }}
 {{ api_method("getButton", "getButton (id)", "Returns the button container element associated with a file",
 [
     {

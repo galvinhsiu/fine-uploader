@@ -302,7 +302,6 @@
 
         this._options.warnBeforeUnload && this._preventLeaveInProgress();
 
-        this._imageGenerator = qq.ImageGenerator && new qq.ImageGenerator(qq.bind(this.log, this));
         this._refreshSessionData();
 
         this._succeededSinceLastAllComplete = [];

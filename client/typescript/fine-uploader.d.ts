@@ -73,22 +73,6 @@ declare module "fine-uploader/lib/core" {
         deleteFile(id: number): void;
 
         /**
-         * Draws a thumbnail
-         *
-         * @param number id : The id of the image file
-         * @param HTMLElement targetContainer : The element where the image preview will be drawn. Must be either an <img> or <canvas> element
-         * @param number maxSize : The maximum dimensions (for width and height) you will allow this image to scale to
-         * @param boolean fromServer : true if the image data will come as a response from the server rather than be generated client-side
-         * @param CustomResizerCallBack customResizer : Ignored if the current browser does not support image previews.
-         *                                              If you want to use an alternate library to resize the image, you must contribute a function for this option that returns a `Promise`.
-         *                                              Once the resize is complete, your promise must be fulfilled.
-         *                                              You may, of course, reject your returned `Promise` is the resize fails in some way.
-         * @returns Promise: Fulfilled by passing the container back into the success callback after the thumbnail has been rendered.
-         *                   If the thumbnail cannot be rendered, failure callbacks will be invoked instead, passing an object with `container` and `error` properties.
-         */
-        drawThumbnail(id: number, targetContainer: HTMLElement, maxSize?: number, fromServer?: boolean, customResizer?: CustomResizerCallBack): PromiseOptions;
-
-        /**
          * Returns the button container element associated with a file
          *
          * @param number id : The file id

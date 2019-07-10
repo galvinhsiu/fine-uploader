@@ -66,15 +66,9 @@ core-files = \
 	$(js-src-dir)/upload-handler/form.upload.handler.js \
 	$(js-src-dir)/upload-handler/xhr.upload.handler.js \
 	$(js-src-dir)/deletefile.ajax.requester.js \
-	$(js-src-dir)/image-support/megapix-image.js \
-	$(js-src-dir)/image-support/image.js \
-	$(js-src-dir)/image-support/exif.js \
 	$(js-src-dir)/identify.js \
-	$(js-src-dir)/image-support/validation.image.js \
 	$(js-src-dir)/session.js \
 	$(js-src-dir)/session.ajax.requester.js \
-	$(js-src-dir)/image-support/scaler.js \
-	$(js-src-dir)/third-party/ExifRestorer.js \
 	$(js-src-dir)/total-progress.js \
 	$(js-src-dir)/paste.js \
 	$(js-src-dir)/form-support.js \

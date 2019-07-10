@@ -124,45 +124,6 @@ describe("file list initialization tests", function() {
         }, 0);
     });
 
-    // The <img> fails to load sometimes in older versions of IE for some unknown reason, so we have to exclude this test
-    if (!qq.ie() || qq.ie10() || qq.ie11()) {
-        it("drawThumbnail renders image properly if session response includes thumbnailUrl", function(done) {
-            assert.expect(3, done);
-
-            var img = document.createElement("img");
-
-            var expectedSessionResponse = [
-                    {
-                        name: "up.jpg",
-                        uuid: "123",
-                        thumbnailUrl: thumbnailSrc
-                    }
-                ],
-                uploader = new qq.FineUploaderBasic({
-                    session: {
-                        endpoint: sessionEndpoint
-                    },
-                    callbacks: {
-                        onSessionRequestComplete: function(response, success, xhr) {
-                            assert.deepEqual(response, expectedSessionResponse, "unexpected callback response");
-                            assert.ok(success, "session request deemed failure");
-
-                            uploader.drawThumbnail(0, img, 0, true).then(function(container) {
-                                assert.equal(container.src, thumbnailSrc, "wrong thumbnail src");
-                            }, function() {
-                                assert.fail(null, null, "Thumbnail generation failed");
-                            });
-                        }
-                    }
-                }
-            );
-
-            setTimeout(function() {
-                fileHelper.getRequests()[0].respond(200, null, JSON.stringify(expectedSessionResponse));
-            }, 0);
-        });
-    }
-
     it("ignores response items that do not contain a valid UUID or name", function(done) {
         assert.expect(3, done);
 
