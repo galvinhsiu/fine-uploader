@@ -149,7 +149,6 @@ qq.supportedFeatures = (function() {
         pause: supportsChunking,
         progressBar: supportsUploadProgress,
         resume: supportsResume,
-        scaling: supportsUploadingBlobs,
         uploading: supportsUploading,
         uploadCors: supportsUploadCors,
         uploadCustomHeaders: supportsAjaxFileUploading,

@@ -307,11 +307,6 @@
         this._succeededSinceLastAllComplete = [];
         this._failedSinceLastAllComplete = [];
 
-        this._scaler = (qq.Scaler && new qq.Scaler(this._options.scaling, qq.bind(this.log, this))) || {};
-        if (this._scaler.enabled) {
-            this._customNewFileHandler = qq.bind(this._scaler.handleNewFile, this._scaler);
-        }
-
         if (qq.TotalProgress && qq.supportedFeatures.progressBar) {
             this._totalProgress = new qq.TotalProgress(
                 qq.bind(this._onTotalProgress, this),
