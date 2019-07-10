@@ -217,26 +217,6 @@
 
             // scale images client side, upload a new file for each scaled version
             scaling: {
-                customResizer: null,
-
-                // send the original file as well
-                sendOriginal: true,
-
-                // fox orientation for scaled images
-                orient: true,
-
-                // If null, scaled image type will match reference image type.  This value will be referred to
-                // for any size record that does not specific a type.
-                defaultType: null,
-
-                defaultQuality: 80,
-
-                failureText: "Failed to scale",
-
-                includeExif: false,
-
-                // metadata about each requested scaled version
-                sizes: []
             },
 
             workarounds: {
