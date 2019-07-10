@@ -406,8 +406,6 @@
             }
 
             qq(templating.getFileContainer(id)).addClass(this._classes.success);
-
-            this._maybeUpdateThumbnail(id);
         },
 
         _onUploadPrep: function(id) {
@@ -681,21 +679,6 @@
             this._totalFilesInBatch = items.length;
             this._filesInBatchAddedToUi = 0;
             this._parent.prototype._prepareItemsForUpload.apply(this, arguments);
-        },
-
-        _maybeUpdateThumbnail: function(fileId) {
-            var thumbnailUrl = this._thumbnailUrls[fileId],
-                fileStatus = this.getUploads({id: fileId}).status;
-
-            if (fileStatus !== qq.status.DELETED &&
-                (thumbnailUrl ||
-                this._options.thumbnails.placeholders.waitUntilResponse ||
-                !qq.supportedFeatures.imagePreviews)) {
-
-                // This will replace the "waiting" placeholder with a "preview not available" placeholder
-                // if called with a null thumbnailUrl.
-                this._templating.updateThumbnail(fileId, thumbnailUrl, this._options.thumbnails.customResizer);
-            }
         },
 
         _addCannedFile: function(sessionData) {

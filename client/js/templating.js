@@ -467,10 +467,8 @@ qq.Templating = function(spec) {
 
     // No need to worry about conserving CPU or memory on older browsers,
     // since there is no ability to preview, and thumbnail display is primitive and quick.
-    if (!qq.supportedFeatures.imagePreviews) {
-        options.limits.timeBetweenThumbs = 0;
-        options.limits.maxThumbs = 0;
-    }
+    options.limits.timeBetweenThumbs = 0;
+    options.limits.maxThumbs = 0;
 
     container = options.containerEl;
     showThumbnails = options.imageGenerator !== undefined;

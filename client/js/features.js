@@ -15,7 +15,6 @@ qq.supportedFeatures = (function() {
         supportsDeleteFileCorsXhr,
         supportsDeleteFileCors,
         supportsFolderSelection,
-        supportsImagePreviews,
         supportsUploadProgress;
 
     function testSupportsFileInputElement() {
@@ -127,8 +126,6 @@ qq.supportedFeatures = (function() {
 
     supportsFolderSelection = isFolderSelectionSupported();
 
-    supportsImagePreviews = supportsAjaxFileUploading && window.FileReader !== undefined;
-
     supportsUploadProgress = (function() {
         if (supportsAjaxFileUploading) {
             return !qq.androidStock() && !qq.iosChrome();
@@ -148,14 +145,12 @@ qq.supportedFeatures = (function() {
         fileDrop: supportsFileDrop,
         folderDrop: supportsFolderDrop,
         folderSelection: supportsFolderSelection,
-        imagePreviews: supportsImagePreviews,
-        imageValidation: supportsImagePreviews,
+        imageValidation: false,
         itemSizeValidation: supportsAjaxFileUploading,
         pause: supportsChunking,
         progressBar: supportsUploadProgress,
         resume: supportsResume,
-        scaling: supportsImagePreviews && supportsUploadingBlobs,
-        unlimitedScaledImageSize: !qq.ios(), // false simply indicates that there is some known limit
+        scaling: supportsUploadingBlobs,
         uploading: supportsUploading,
         uploadCors: supportsUploadCors,
         uploadCustomHeaders: supportsAjaxFileUploading,
