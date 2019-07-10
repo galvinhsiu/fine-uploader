@@ -240,7 +240,6 @@
         this._autoRetries = [];
         this._retryTimeouts = [];
         this._preventRetries = [];
-        this._thumbnailUrls = [];
 
         this._netUploadedOrQueued = 0;
         this._netUploaded = 0;

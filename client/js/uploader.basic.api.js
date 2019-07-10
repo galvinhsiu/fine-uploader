@@ -298,7 +298,6 @@
             this._autoRetries = [];
             this._retryTimeouts = [];
             this._preventRetries = [];
-            this._thumbnailUrls = [];
 
             qq.each(this._buttons, function(idx, button) {
                 button.reset();
@@ -436,10 +435,6 @@
                 onBeforeStatusChange: function(id) {
                     sessionData.deleteFileEndpoint && self.setDeleteFileEndpoint(sessionData.deleteFileEndpoint, id);
                     sessionData.deleteFileParams && self.setDeleteFileParams(sessionData.deleteFileParams, id);
-
-                    if (sessionData.thumbnailUrl) {
-                        self._thumbnailUrls[id] = sessionData.thumbnailUrl;
-                    }
 
                     self._netUploaded++;
                     self._netUploadedOrQueued++;
@@ -1475,10 +1470,6 @@
                 }
             }
             else {
-                if (result.thumbnailUrl) {
-                    this._thumbnailUrls[id] = result.thumbnailUrl;
-                }
-
                 this._netUploaded++;
                 this._uploadData.setStatus(id, qq.status.UPLOAD_SUCCESSFUL);
             }

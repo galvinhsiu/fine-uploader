@@ -79,17 +79,6 @@ qq.FineUploader = function(o, namespace) {
             namePromptMessage: "Please name this image"
         },
 
-        thumbnails: {
-            customResizer: null,
-            maxCount: 0,
-            placeholders: {
-                waitUntilResponse: false,
-                notAvailablePath: null,
-                waitingPath: null
-            },
-            timeBetweenThumbs: 750
-        },
-
         scaling: {
             hideScaled: false
         },
@@ -138,13 +127,8 @@ qq.FineUploader = function(o, namespace) {
             editable: this._options.classes.editable
         },
         limits: {
-            maxThumbs: this._options.thumbnails.maxCount,
-            timeBetweenThumbs: this._options.thumbnails.timeBetweenThumbs
         },
         placeholders: {
-            waitUntilUpdate: this._options.thumbnails.placeholders.waitUntilResponse,
-            thumbnailNotAvailable: this._options.thumbnails.placeholders.notAvailablePath,
-            waitingForThumbnail: this._options.thumbnails.placeholders.waitingPath
         },
         text: this._options.text
     });
