@@ -13,8 +13,6 @@ qq.Templating = function(spec) {
 
     var FILE_ID_ATTR = "qq-file-id",
         FILE_CLASS_PREFIX = "qq-file-id-",
-        THUMBNAIL_MAX_SIZE_ATTR = "qq-max-size",
-        THUMBNAIL_SERVER_SCALE_ATTR = "qq-server-scale",
         // This variable is duplicated in the DnD module since it can function as a standalone as well
         HIDE_DROPZONE_ATTR = "qq-hide-dropzone",
         DROPZPONE_TEXT_ATTR = "qq-drop-area-text",
@@ -25,15 +23,9 @@ qq.Templating = function(spec) {
             map: {}
         },
         isCancelDisabled = false,
-        generatedThumbnails = 0,
-        thumbnailQueueMonitorRunning = false,
-        thumbGenerationQueue = [],
-        thumbnailMaxSize = -1,
         options = {
             log: null,
             limits: {
-                maxThumbs: 0,
-                timeBetweenThumbs: 750
             },
             templateIdOrEl: "qq-template",
             containerEl: null,
@@ -46,8 +38,6 @@ qq.Templating = function(spec) {
             },
             placeholders: {
                 waitUntilUpdate: false,
-                thumbnailNotAvailable: null,
-                waitingForThumbnail: null
             },
             text: {
                 paused: "Paused"
@@ -82,7 +72,6 @@ qq.Templating = function(spec) {
             dropText: "qq-upload-drop-area-text-selector",
             dropProcessing: "qq-drop-processing-selector",
             dropProcessingSpinner: "qq-drop-processing-spinner-selector",
-            thumbnail: "qq-thumbnail-selector"
         },
         previewGeneration = {},
         cachedThumbnailNotAvailableImg = new qq.Promise(),
@@ -95,62 +84,6 @@ qq.Templating = function(spec) {
         fileList,
         showThumbnails,
         serverScale,
-
-        // During initialization of the templating module we should cache any
-        // placeholder images so we can quickly swap them into the file list on demand.
-        // Any placeholder images that cannot be loaded/found are simply ignored.
-        cacheThumbnailPlaceholders = function() {
-            var notAvailableUrl =  options.placeholders.thumbnailNotAvailable,
-                waitingUrl = options.placeholders.waitingForThumbnail,
-                spec = {
-                    maxSize: thumbnailMaxSize,
-                    scale: serverScale
-                };
-
-            if (showThumbnails) {
-                if (notAvailableUrl) {
-                }
-                else {
-                    cachedThumbnailNotAvailableImg.failure();
-                }
-
-                if (waitingUrl) {
-                }
-                else {
-                    cachedWaitingForThumbnailImg.failure();
-                }
-            }
-        },
-
-        // Displays a "waiting for thumbnail" type placeholder image
-        // iff we were able to load it during initialization of the templating module.
-        displayWaitingImg = function(thumbnail) {
-            var waitingImgPlacement = new qq.Promise();
-
-            cachedWaitingForThumbnailImg.then(function(img) {
-                maybeScalePlaceholderViaCss(img, thumbnail);
-                /* jshint eqnull:true */
-                if (!thumbnail.src) {
-                    thumbnail.src = img.src;
-                    thumbnail.onload = function() {
-                        thumbnail.onload = null;
-                        show(thumbnail);
-                        waitingImgPlacement.success();
-                    };
-                }
-                else {
-                    waitingImgPlacement.success();
-                }
-            }, function() {
-                // In some browsers (such as IE9 and older) an img w/out a src attribute
-                // are displayed as "broken" images, so we should just hide the img tag
-                // if we aren't going to display the "waiting" placeholder.
-                hide(thumbnail);
-                waitingImgPlacement.success();
-            });
-
-            return waitingImgPlacement;
-        },
 
         getCancel = function(id) {
             return getTemplateEl(getFile(id), selectorClasses.cancel);
@@ -217,56 +150,8 @@ qq.Templating = function(spec) {
             return context && qq(context).getFirstByClass(cssClass);
         },
 
-        getThumbnail = function(id) {
-            return showThumbnails && getTemplateEl(getFile(id), selectorClasses.thumbnail);
-        },
-
         hide = function(el) {
             el && qq(el).addClass(options.classes.hide);
-        },
-
-        // Ensures a placeholder image does not exceed any max size specified
-        // via `style` attribute properties iff <canvas> was not used to scale
-        // the placeholder AND the target <img> doesn't already have these `style` attribute properties set.
-        maybeScalePlaceholderViaCss = function(placeholder, thumbnail) {
-            var maxWidth = placeholder.style.maxWidth,
-                maxHeight = placeholder.style.maxHeight;
-
-            if (maxHeight && maxWidth && !thumbnail.style.maxWidth && !thumbnail.style.maxHeight) {
-                qq(thumbnail).css({
-                    maxWidth: maxWidth,
-                    maxHeight: maxHeight
-                });
-            }
-        },
-
-        // Displays a "thumbnail not available" type placeholder image
-        // iff we were able to load this placeholder during initialization
-        // of the templating module or after preview generation has failed.
-        maybeSetDisplayNotAvailableImg = function(id, thumbnail) {
-            var previewing = previewGeneration[id] || new qq.Promise().failure(),
-                notAvailableImgPlacement = new qq.Promise();
-
-            cachedThumbnailNotAvailableImg.then(function(img) {
-                previewing.then(
-                    function() {
-                        notAvailableImgPlacement.success();
-                    },
-                    function() {
-                        maybeScalePlaceholderViaCss(img, thumbnail);
-
-                        thumbnail.onload = function() {
-                            thumbnail.onload = null;
-                            notAvailableImgPlacement.success();
-                        };
-
-                        thumbnail.src = img.src;
-                        show(thumbnail);
-                    }
-                );
-            });
-
-            return notAvailableImgPlacement;
         },
 
         /**
@@ -285,7 +170,6 @@ qq.Templating = function(spec) {
                 fileListEl,
                 defaultButton,
                 dropArea,
-                thumbnail,
                 dropProcessing,
                 dropTextEl,
                 uploaderEl;
@@ -369,21 +253,6 @@ qq.Templating = function(spec) {
                 dropTextEl && qq(dropTextEl).remove();
             }
 
-            // Ensure the `showThumbnails` flag is only set if the thumbnail element
-            // is present in the template AND the current UA is capable of generating client-side previews.
-            thumbnail = qq(tempTemplateEl).getFirstByClass(selectorClasses.thumbnail);
-            if (!showThumbnails) {
-                thumbnail && qq(thumbnail).remove();
-            }
-            else if (thumbnail) {
-                thumbnailMaxSize = parseInt(thumbnail.getAttribute(THUMBNAIL_MAX_SIZE_ATTR));
-                // Only enforce max size if the attr value is non-zero
-                thumbnailMaxSize = thumbnailMaxSize > 0 ? thumbnailMaxSize : null;
-
-                serverScale = qq(thumbnail).hasAttribute(THUMBNAIL_SERVER_SCALE_ATTR);
-            }
-            showThumbnails = showThumbnails && thumbnail;
-
             isEditElementsExist = qq(tempTemplateEl).getByClass(selectorClasses.editFilenameInput).length > 0;
             isRetryElementExist = qq(tempTemplateEl).getByClass(selectorClasses.retry).length > 0;
 
@@ -438,49 +307,18 @@ qq.Templating = function(spec) {
 
         show = function(el) {
             el && qq(el).removeClass(options.classes.hide);
-        },
-
-        useCachedPreview = function(targetThumbnailId, cachedThumbnailId) {
-            var targetThumbnail = getThumbnail(targetThumbnailId),
-                cachedThumbnail = getThumbnail(cachedThumbnailId);
-
-            log(qq.format("ID {} is the same file as ID {}.  Will use generated thumbnail from ID {} instead.", targetThumbnailId, cachedThumbnailId, cachedThumbnailId));
-
-            // Generation of the related thumbnail may still be in progress, so, wait until it is done.
-            previewGeneration[cachedThumbnailId].then(function() {
-                generatedThumbnails++;
-                previewGeneration[targetThumbnailId].success();
-                log(qq.format("Now using previously generated thumbnail created for ID {} on ID {}.", cachedThumbnailId, targetThumbnailId));
-                targetThumbnail.src = cachedThumbnail.src;
-                show(targetThumbnail);
-            },
-            function() {
-                previewGeneration[targetThumbnailId].failure();
-                if (!options.placeholders.waitUntilUpdate) {
-                    maybeSetDisplayNotAvailableImg(targetThumbnailId, targetThumbnail);
-                }
-            });
-        };
+        }
 
     qq.extend(options, spec);
     log = options.log;
-
-    // No need to worry about conserving CPU or memory on older browsers,
-    // since there is no ability to preview, and thumbnail display is primitive and quick.
-    options.limits.timeBetweenThumbs = 0;
-    options.limits.maxThumbs = 0;
 
     container = options.containerEl;
     showThumbnails = options.imageGenerator !== undefined;
     templateDom = parseAndGetTemplate();
 
-    cacheThumbnailPlaceholders();
-
     qq.extend(this, {
         render: function() {
             log("Rendering template in DOM.");
-
-            generatedThumbnails = 0;
 
             container.appendChild(templateDom.template.cloneNode(true));
             hide(getDropProcessing());
@@ -513,8 +351,7 @@ qq.Templating = function(spec) {
             var fileEl = templateDom.fileTemplate.cloneNode(true),
                 fileNameEl = getTemplateEl(fileEl, selectorClasses.file),
                 uploaderEl = getTemplateEl(container, selectorClasses.uploader),
-                fileContainer = batch ? fileBatch.content : fileList,
-                thumb;
+                fileContainer = batch ? fileBatch.content : fileList;
 
             if (batch) {
                 fileBatch.map[id] = fileEl;
@@ -551,21 +388,6 @@ qq.Templating = function(spec) {
 
                 if (isCancelDisabled) {
                     this.hideCancel(id);
-                }
-
-                thumb = getThumbnail(id);
-                if (thumb && !thumb.src) {
-                    cachedWaitingForThumbnailImg.then(function(waitingImg) {
-                        thumb.src = waitingImg.src;
-                        if (waitingImg.style.maxHeight && waitingImg.style.maxWidth) {
-                            qq(thumb).css({
-                                maxHeight: waitingImg.style.maxHeight,
-                                maxWidth: waitingImg.style.maxWidth
-                            });
-                        }
-
-                        show(thumb);
-                    });
                 }
             }
         },
