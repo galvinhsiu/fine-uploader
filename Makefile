@@ -62,7 +62,6 @@ core-files = \
 	$(js-src-dir)/upload-handler/form.upload.handler.js \
 	$(js-src-dir)/upload-handler/xhr.upload.handler.js \
 	$(js-src-dir)/deletefile.ajax.requester.js \
-	$(js-src-dir)/identify.js \
 	$(js-src-dir)/session.js \
 	$(js-src-dir)/session.ajax.requester.js \
 	$(js-src-dir)/total-progress.js \
