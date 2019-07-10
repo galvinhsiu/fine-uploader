@@ -38,7 +38,6 @@ to upload images directly via a camera.  In that case, it likely makes more sens
 first (before submitting the file) or simply impose a file size restriction.
 
 Also, this feature is dependant on the preview generation feature, and therefore is only supported in modern browsers.
-Check the browser support matrix or the `qq.supportedFeatures.imageValidation` flag for more specific information.
 If image dimension validation is important to your application, you will also need a server-side fallback to account
 for older browsers and TIFFs (if allowed, since TIFFs are only previewable in Safari).
 

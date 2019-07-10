@@ -145,7 +145,6 @@ qq.supportedFeatures = (function() {
         fileDrop: supportsFileDrop,
         folderDrop: supportsFolderDrop,
         folderSelection: supportsFolderSelection,
-        imageValidation: false,
         itemSizeValidation: supportsAjaxFileUploading,
         pause: supportsChunking,
         progressBar: supportsUploadProgress,
