@@ -50,17 +50,6 @@ This template also renders a visible drop zone, but only with the fine-uploader-
 file will include a customizable "drop files" message in the background of the drop zone if the current browser supports
 file dropping.
 
-#### simple-thumbnails.html
-
-This template is similar to "default", except it will render previews of images and placeholders for non-previewable images
-(provided you make preview images accessible via the `template.placeholders` option). There are several instances of this
-template in use (both customized and non-customized) at http://fineuploader.com/demos. You may use the legacy fine-uploader.css
-file or the new/modern fine-uploader-new.css file.
-
-This template also renders a visible drop zone, but only with the fine-uploader-new.css file. The fine-uploader-new.css
-file will include a customizable "drop files" message in the background of the drop zone if the current browser supports
-file dropping.
-
 #### gallery.html
 
 This is a template that represents each submitted file as a "tile". You can see a couple examples of this template in action

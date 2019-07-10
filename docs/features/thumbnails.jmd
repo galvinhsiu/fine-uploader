@@ -27,27 +27,6 @@ Finally, you may elect to have Fine Uploader display a placeholder image before 
 with a placeholder if the thumbnail cannot be displayed for any reason.  The library ships with some default
 placeholders, but you can easily replace these with your own.
 
-
-## Getting Started
-The `templates` folder bundled with Fine Uploader contains a `simple-thumbnails.html` template document
-that you may use to get up and running with the thumbnail feature.  If you are a Fine Uploader UI user,
-simply including using this document or including the template `<script>` in your existing document
-in place of the `default.html` template is all that is required to turn on the thumbnails feature.
-
-The simple thumbnails template bundled with the library will display thumbnails between the spinner and the
-file name.  You, of course, can customize the location, along with any other aspect of the template.  Notice
-that the thumbnail will always be house in an `<img>` element.  This `<img>` tag has a `qq-max-size` attribute
-which specifies a default maximum size to enforce for all thumbnails.  A `qq-server-scale` attribute is also
-present by default.  This signals Fine Uploader UI to always ensure any thumbnails display
-from server responses are scaled as well.  You can remove this attribute or set the value to "false" if any thumbnails
-returned in your upload responses are already appropriately scaled.
-
-If you are not a Fine Uploader UI user, and instead are building your own highly-customized UI utilizing
-Fine Uploader Core, you can still easily display thumbnails/previews via the new `drawThumbnail` API method.
-This method supports rendering optionally scaled thumbnails/previews on `<canvas>` elements (where supported)
-and of course `<img>` elements.
-
-
 ## Supporting Modern Browsers
 Modern browsers include Chrome, Firefox, IE10+, Safari 6+, iOS 6+, Android 4+, & Opera 15+.  In these browsers,
 image previews can be generated immediately after the file has been selected or dropped.  The images that can be
